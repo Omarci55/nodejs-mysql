@@ -2,6 +2,7 @@ const express = require("express");
 const app = express()
 const bodyParser = require("body-parser");
 const connection = require("./database/database")
+const QuestionModel = require("./database/questions")
 
 connection
     .authenticate()
@@ -22,6 +23,13 @@ app.use(bodyParser.json());
 
 //routes
 app.get("/", (req, res) => {
+
+    QuestionModel
+        .findAll()
+        .then( questions => {
+            console.log(questions)
+    })
+
     res.render("index")
 });
 
@@ -32,7 +40,14 @@ app.get("/questions", (req, res) => {
 app.post("/saving", (req, res) => {
     const title = req.body.title;
     const description = req.body.description;
-    res.send("Form received! Title " + title + " " + "description " + description);
+
+    //equivalente ao INSERT into database...
+    QuestionModel.create({
+        title: title,
+        description: description
+    }).then(() => {
+        res.redirect("/")
+    })
 })
 
 app.listen(8080, () => {
